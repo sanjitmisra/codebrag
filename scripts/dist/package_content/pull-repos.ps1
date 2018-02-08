@@ -1,17 +1,18 @@
-﻿$ErrorActionPreference = "SilentlyContinue"
+﻿# This is to suppress error messages that get shown as git outputs to the stdout stream. Not the best way of handling the issue though as useful error messages may also get blanked out.
+$ErrorActionPreference = "SilentlyContinue"
 
 # Get the location of the script. Every other path is relative to this.
 $scriptPath = split-path -parent $MyInvocation.MyCommand.Definition
 
 Set-Location -Path $scriptPath  
 
+# Loop through all the repos listed in the repolist.txt file
 foreach ($repo in Get-Content -Path ".\repos\repolist.txt"){
-    echo "In repo - " + $repo
    
     # Costruct fully named path of the directory housing the repo
     $path = [io.path]::Combine($scriptPath,"repos",$repo)
 
-    # In case it is a new repo, clone it
+    # In case it is a new repo, first clone it.
     if ( -not (Test-Path $path)){
         
         # Construct the URL for the repository
@@ -22,8 +23,9 @@ foreach ($repo in Get-Content -Path ".\repos\repolist.txt"){
         Set-Location -Path $pathtillrepodir
 
         # Clone the repo
-        git clone $repo_url
-       
+        git clone $repo_url   
+
+	# The codebrag server may need a restart post addition of a new repo.     
        }
 
     # Move inside the repo directory
